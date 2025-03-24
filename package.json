@@ -1,0 +1,107 @@
+{
+  "name": "any-to-ts",
+  "displayName": "Any to TS",
+  "description": "A VSCode extension that converts any object to a TypeScript type or interface",
+  "version": "0.0.1",
+  "publisher": "gy",
+  "author": "https://github.com/greywen",
+  "icon": "icon.png",
+  "repository": "https://github.com/greywen/vscode-any-to-ts",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "types",
+    "util",
+    "typescript",
+    "json"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "anyToTs.fromClipboard",
+        "title": "Any to TS: Convert from clipboard"
+      },
+      {
+        "command": "anyToTs.fromSelection",
+        "title": "Any to TS: Convert from text selection"
+      },
+      {
+        "command": "anyToTs.fromTransform",
+        "title": "Any to TS: Change transform type"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "anyToTs.fromClipboard",
+        "key": "shift+ctrl+alt+V"
+      },
+      {
+        "command": "anyToTs.fromSelection",
+        "key": "shift+ctrl+alt+S"
+      },
+      {
+        "command": "anyToTs.fromTransform",
+        "key": "shift+ctrl+alt+T"
+      }
+    ],
+    "configuration": {
+      "title": "Any To TS Settings",
+      "properties": {
+        "greywen.any-to-ts.useTypeAlias": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use Type alias",
+          "order": 1
+        },
+        "greywen.any-to-ts.useLLM": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use large language model",
+          "order": 2
+        },
+        "greywen.any-to-ts.baseURL": {
+          "type": "string",
+          "default": "",
+          "description": "Your LLM base URL",
+          "order": 3
+        },
+        "greywen.any-to-ts.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your LLM API key",
+          "order": 4
+        },
+        "greywen.any-to-ts.modelName": {
+          "type": "string",
+          "default": "",
+          "description": "Your LLM model",
+          "order": 5
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "lint": "eslint \"src/**/*.ts\"",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/vscode": "^1.98.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "eslint": "^8.26.0",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "json-to-ts": "^2.1.0",
+    "openai": "^4.89.0"
+  }
+}
