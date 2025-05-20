@@ -2,7 +2,7 @@
   "name": "any-to-ts",
   "displayName": "Any to TS",
   "description": "A VSCode extension that converts any object to a TypeScript type or interface",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "gy",
   "author": "https://github.com/greywen",
   "icon": "icon.png",
@@ -59,29 +59,41 @@
           "description": "Use Type alias",
           "order": 1
         },
+        "greywen.any-to-ts.separator": {
+          "type": "string",
+          "default": ";",
+          "description": "Separator",
+          "enum": [";", ",", ""],
+           "enumDescriptions": [
+            "interface I { name: type; }",
+            "interface I { name: type, }",
+            "interface I { name: type }"
+          ],
+          "order": 2
+        },
         "greywen.any-to-ts.useLLM": {
           "type": "boolean",
           "default": false,
           "description": "Use large language model",
-          "order": 2
+          "order": 3
         },
         "greywen.any-to-ts.baseURL": {
           "type": "string",
           "default": "",
           "description": "Your LLM base URL",
-          "order": 3
+          "order": 4
         },
         "greywen.any-to-ts.apiKey": {
           "type": "string",
           "default": "",
           "description": "Your LLM API key",
-          "order": 4
+          "order": 5
         },
         "greywen.any-to-ts.modelName": {
           "type": "string",
           "default": "",
           "description": "Your LLM model",
-          "order": 5
+          "order": 6
         }
       }
     }

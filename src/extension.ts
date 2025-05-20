@@ -1,6 +1,6 @@
-import * as path from 'path';
-import * as os from 'os';
-import * as fs from 'fs';
+import * as path from "path";
+import * as os from "os";
+import * as fs from "fs";
 import {
   Uri,
   ExtensionContext,
@@ -11,9 +11,9 @@ import {
   workspace,
   StatusBarAlignment,
   ConfigurationTarget,
-} from 'vscode';
-import JsonToTS from 'json-to-ts';
-import OpenAI from 'openai';
+} from "vscode";
+import JsonToTS from "json-to-ts";
+import OpenAI from "openai";
 
 const SYSTEM_PROMPT = `Converts any string entered into a TypeScript type, using a type alias. 
 Rules: 
@@ -25,33 +25,38 @@ const statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
 
 export function activate(context: ExtensionContext) {
   context.subscriptions.push(
-    commands.registerCommand('anyToTs.fromClipboard', transformFromClipboard)
+    commands.registerCommand("anyToTs.fromClipboard", transformFromClipboard)
   );
   context.subscriptions.push(
-    commands.registerCommand('anyToTs.fromSelection', transformFromSelection)
+    commands.registerCommand("anyToTs.fromSelection", transformFromSelection)
   );
   context.subscriptions.push(
-    commands.registerCommand('anyToTs.fromTransform', transformFromTransform)
+    commands.registerCommand("anyToTs.fromTransform", transformFromTransform)
   );
 }
 
 function getUseTypeAlias() {
-  const config = workspace.getConfiguration('greywen.any-to-ts');
-  return config.get<boolean>('useTypeAlias');
+  const config = workspace.getConfiguration("greywen.any-to-ts");
+  return config.get<boolean>("useTypeAlias");
 }
 
 function getLLMConfig() {
-  const config = workspace.getConfiguration('greywen.any-to-ts');
+  const config = workspace.getConfiguration("greywen.any-to-ts");
   return {
-    baseURL: config.get<string>('baseURL') || '',
-    apiKey: config.get<string>('apiKey') || '',
-    modelName: config.get<string>('modelName') || ''
+    baseURL: config.get<string>("baseURL") || "",
+    apiKey: config.get<string>("apiKey") || "",
+    modelName: config.get<string>("modelName") || "",
   };
 }
 
+function getSeparator() {
+  const config = workspace.getConfiguration("greywen.any-to-ts");
+  return config.get<string>("separator");
+}
+
 function getUseLLM() {
-  const config = workspace.getConfiguration('greywen.any-to-ts');
-  return config.get<boolean>('useLLM');
+  const config = workspace.getConfiguration("greywen.any-to-ts");
+  return config.get<boolean>("useLLM");
 }
 
 async function useJSONToTS(text: string) {
@@ -66,19 +71,21 @@ async function useJSONToTS(text: string) {
 }
 
 async function useLLM(text: string) {
-  return await Promise.resolve(text).then(validateLength).then(text => transformAnyToTS(text));
+  return await Promise.resolve(text)
+    .then(validateLength)
+    .then((text) => transformAnyToTS(text));
 }
 
 async function conversion(text: string) {
-  let result = '';
-  statusBarItem.text = '$(sync~spin) Loading...';
+  let result = "";
+  statusBarItem.text = "$(sync~spin) Loading...";
   statusBarItem.show();
   try {
     try {
       result = await useJSONToTS(text);
     } catch (error: any) {
       if (getUseLLM()) result = await useLLM(text);
-      else handleError(error)
+      else handleError(error);
     }
     return result;
   } catch (error) {
@@ -89,16 +96,17 @@ async function conversion(text: string) {
 }
 
 async function transformFromSelection() {
-  const tmpFilePath = path.join(os.tmpdir(), 'any-to-ts.ts');
+  const tmpFilePath = path.join(os.tmpdir(), "any-to-ts.ts");
   const tmpFileUri = Uri.file(tmpFilePath);
   const text = await getSelectedText();
 
   conversion(text)
     .then((interfaces) => {
+      console.log(interfaces);
       fs.writeFileSync(tmpFilePath, interfaces);
     })
     .then(() => {
-      commands.executeCommand('vscode.open', tmpFileUri, getViewColumn());
+      commands.executeCommand("vscode.open", tmpFileUri, getViewColumn());
     })
     .catch(handleError);
 }
@@ -115,12 +123,16 @@ async function transformFromClipboard() {
 
 function transformFromTransform() {
   const useTypeAlias = !getUseTypeAlias();
-  workspace.getConfiguration().update(
-    'greywen.any-to-ts.useTypeAlias',
-    useTypeAlias,
-    ConfigurationTarget.Global
+  workspace
+    .getConfiguration()
+    .update(
+      "greywen.any-to-ts.useTypeAlias",
+      useTypeAlias,
+      ConfigurationTarget.Global
+    );
+  window.showInformationMessage(
+    useTypeAlias ? "Use Type alias." : "Use Interface alias."
   );
-  window.showInformationMessage(useTypeAlias ? 'Use Type alias.' : 'Use Interface alias.')
 }
 
 function handleError(error: Error) {
@@ -133,7 +145,7 @@ function parseJson(json: string): Promise<object> {
   try {
     return Promise.resolve(JSON.parse(json));
     // eslint-disable-next-line no-empty
-  } catch (ignored) { }
+  } catch (ignored) {}
 
   try {
     return Promise.resolve(tryEval(json));
@@ -158,11 +170,18 @@ function getViewColumn(): ViewColumn {
   return activeEditor.viewColumn as any;
 }
 
+function setFieldSeparator(content: string): string {
+  const separator = getSeparator();
+  if (separator === ";") return content;
+  return content.replace(/;/g, separator || "");
+}
+
 function pasteToMarker(content: string) {
   const { activeTextEditor } = window;
 
   return activeTextEditor?.edit((editBuilder) => {
-    editBuilder.replace(activeTextEditor.selection, content);
+    const value = setFieldSeparator(content);
+    editBuilder.replace(activeTextEditor.selection, value);
   });
 }
 
@@ -173,7 +192,7 @@ function getSelectedText(): Promise<string> {
 
 function validateLength(text: string) {
   if (text.length === 0) {
-    return Promise.reject(new Error('Nothing selected'));
+    return Promise.reject(new Error("Nothing selected"));
   } else {
     return Promise.resolve(text);
   }
@@ -190,19 +209,25 @@ async function transformAnyToTS(text: string) {
       stream: false,
       model: config.modelName,
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT.replace(/{{useTypeAlias}}/g, getUseTypeAlias() ? 'type' : 'interface') },
-        { role: 'user', content: text },
+        {
+          role: "system",
+          content: SYSTEM_PROMPT.replace(
+            /{{useTypeAlias}}/g,
+            getUseTypeAlias() ? "type" : "interface"
+          ),
+        },
+        { role: "user", content: text },
       ],
     });
-    return data.choices[0].message.content || '{}';
+    return data.choices[0].message.content || "{}";
   } catch (err) {
-    let errMsg = '';
-    if (typeof err === 'string') {
+    let errMsg = "";
+    if (typeof err === "string") {
       errMsg = err;
-    } else if (typeof err === 'object') {
+    } else if (typeof err === "object") {
       errMsg = JSON.stringify(err);
     }
     window.showErrorMessage(errMsg);
   }
-  return '';
+  return "";
 }
