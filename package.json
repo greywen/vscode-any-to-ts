@@ -2,7 +2,7 @@
   "name": "any-to-ts",
   "displayName": "Any to TS",
   "description": "A VSCode extension that converts any object to a TypeScript type or interface",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "gy",
   "author": "https://github.com/greywen",
   "icon": "icon.png",
@@ -106,7 +106,7 @@
   },
   "devDependencies": {
     "@types/node": "^22",
-    "@types/vscode": "^1.98.0",
+    "@types/vscode": "^1.74.0",
     "@typescript-eslint/eslint-plugin": "^6.7.0",
     "@typescript-eslint/parser": "^6.7.0",
     "eslint": "^8.26.0",
